@@ -44,7 +44,7 @@ async def call_ollama_again():
 async def main():
     start = time.time()
     results = await asyncio.gather(callgroq(),call_ollama(),call_ollama_again())
-    result_groq = await callgroq()
+    #result_groq = await callgroq()
     # result_ollama = await call_ollama()
     # result_ollama_again = await call_ollama_again()
     # results = (result_groq,result_ollama,result_ollama_again)

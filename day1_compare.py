@@ -14,7 +14,7 @@ question = "what is the capital of India?"
 groq_client=Groq(api_key=os.getenv("GROQ_API_KEY")) #creates a groq client object to authenticate with groq API key loaded from env file
 
 groq_response=groq_client.chat.completions.create(   #Send Request to Groq by calling the chat completion API i.e asking to Generate an answer for this conversation.
-                model = "llama-3.1-8b-instant", #tells grow which LLM to use
+                model = "llama-3.1-8b-instant", #tells groq which LLM to use
                 messages = [ 
                     { "role": "user",
                       "content": question}

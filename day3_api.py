@@ -20,3 +20,7 @@ def chat(question: str="What is the capital of India?"):
     )
 
     return {"answer" : groq_response.choices[0].message.content}
+
+#to test after starting he fastapi in one terminal by runnin uvicorn day3_api:app --reload
+#in the next terminal run curl "localhost:8000/chat?question=What%20is%20the%20capital%20of%20India%3F"
+#instead of %20 and %3F use , curl -G "localhost:8000/chat-stream" --data-urlencode "question=what is the capital of India", this is for GET request, for POST requests we will see next.
