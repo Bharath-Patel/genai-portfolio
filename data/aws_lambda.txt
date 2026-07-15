@@ -1,0 +1,37 @@
+AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers. Lambda automatically manages the underlying infrastructure – including server maintenance, capacity provisioning, scaling, and patching – so you can focus on your application logic.
+
+Lambda provides two compute primitives, each designed for different workload patterns:
+
+Lambda Functions – Run code in response to events or API calls without managing servers. You write a handler function, connect it to a trigger (API Gateway, Amazon S3, Amazon SQS, EventBridge, and 200+ other AWS services), and Lambda executes it. Each invocation runs independently with no shared state, scaling horizontally to match demand. Lambda manages execution environments, scaling, routing, and fault tolerance.
+
+Lambda MicroVMs – Isolated compute environments with near-instant startup and state retention for up to 8 hours. Designed for workloads needing a dedicated compute environment for each individual user or job. Lambda manages isolation, capacity, and networking. Your application uses Lambda MicroVMs APIs and HTTPS endpoints to connect each user/job to their compute environment.
+
+Lambda Functions and Lambda MicroVMs share a common serverless foundation:
+
+No server management – AWS manages underlying infrastructure, instance patching, and capacity.
+
+Pay-per-use billing – No upfront commitments. You pay only for the resources used.
+
+Managed networking – Both provide service-managed inbound and outbound network access.
+
+Firecracker virtualization – VM-level isolation between workloads.
+
+Lambda runtimes
+
+Lambda supports multiple languages through the use of runtimes. A runtime provides a language-specific environment that relays invocation events, context information, and responses between Lambda and the function. You can use runtimes that Lambda provides, or build your own.
+
+Lambda is agnostic to your choice of runtime. For simple functions, interpreted languages like Python and Node.js offer the fastest performance. For functions with more complex computation, compiled languages like Java are often slower to initialize but run quickly in the Lambda handler. Choice of runtime is also influenced by developer preference and language familiarity.
+
+Each major programming language release has a separate runtime, with a unique runtime identifier, such as nodejs24.x or python3.14. To configure a function to use a new major language version, you need to change the runtime identifier. Since AWS Lambda cannot guarantee backward compatibility between major versions, this is a customer-driven operation.
+
+For a function defined as a container image, you choose a runtime and the Linux distribution when you create the container image. To change the runtime, you create a new container image.
+
+When you use a .zip file archive for the deployment package, you choose a runtime when you create the function. To change the runtime, you can update your function's configuration. The runtime is paired with one of the Amazon Linux distributions. The underlying execution environment provides additional libraries and environment variables that you can access from your function code.
+
+Lambda invokes your function in an execution environment. The execution environment provides a secure and isolated runtime environment that manages the resources required to run your function. Lambda re-uses the execution environment from a previous invocation if one is available, or it can create a new execution environment.
+
+To use other languages in Lambda, such as Go or Rust, use an OS-only runtime. The Lambda execution environment provides a runtime interface for getting invocation events and sending responses. You can deploy other languages by implementing a custom runtime alongside your function code, or in a layer.
+
+Supported runtimes
+
+The following table lists the supported Lambda runtimes and projected deprecation dates. After a runtime is deprecated, you're still able to create and update functions for a limited period. For more information, see Runtime use after deprecation. The table provides the currently forecasted dates for runtime deprecation, based on our Runtime deprecation policy. These dates are provided for planning purposes and are subject to change.
