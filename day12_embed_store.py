@@ -19,49 +19,56 @@ if not client.collection_exists(collection_name):
         vectors_config = VectorParams(size = 384, distance = Distance.COSINE)
     )
 
-data_folder = "data"
-all_points = []
-point_id = 0
+collection_info = client.get_collection(collection_name)
+
+if collection_info.points_count > 0:
+    print(f"Collection already has {collection_info.points_count} points — skipping re-embedding.")
+else:
+    
+
+    data_folder = "data"
+    all_points = []
+    point_id = 0
 
 
-for filename in os.listdir(data_folder):
-    if not filename.endswith(".txt"):
-        continue
+    for filename in os.listdir(data_folder):
+        if not filename.endswith(".txt"):
+            continue
 
-    filepath = os.path.join(data_folder,filename)
+        filepath = os.path.join(data_folder,filename)
 
-    with open(filepath,"r") as f:
-        text = f.read()
+        with open(filepath,"r") as f:
+            text = f.read()
 
-    chunks=splitter.split_text(text)
+        chunks=splitter.split_text(text)
 
-    embeddings = model.encode(chunks)
+        embeddings = model.encode(chunks)
 
-    for i,chunk in enumerate(chunks):
-        all_points.append(
-            PointStruct(
-                id = point_id,
-                vector = embeddings[i].tolist(),
-                payload = {"text": chunk, "source": filename}
-        ))
-        point_id += 1
+        for i,chunk in enumerate(chunks):
+            all_points.append(
+                PointStruct(
+                    id = point_id,
+                    vector = embeddings[i].tolist(),
+                    payload = {"text": chunk, "source": filename}
+            ))
+            point_id += 1
 
 
-client.upsert(collection_name=collection_name,points=all_points)
-print(f"\nTotal chunks embedded and stored: {len(all_points)}")
+    client.upsert(collection_name=collection_name,points=all_points)
+    print(f"\nTotal chunks embedded and stored: {len(all_points)}")
 
-query = "How do I manage state file locking in Terraform?"
-query_embedding = model.encode(query).tolist()
+    query = "How do I manage state file locking in Terraform?"
+    query_embedding = model.encode(query).tolist()
 
-results = client.query_points(
-    collection_name=collection_name,
-    query=query_embedding,
-    limit=3 # top 3 closest matches
-)
+    results = client.query_points(
+        collection_name=collection_name,
+        query=query_embedding,
+        limit=3 # top 3 closest matches
+    )
 
-print(f"\nQuery: '{query}'")
-print("Top matches:")
-for r in results.points:
-    print(f"  Score: {r.score:.3f} — Source: {r.payload['source']}")
-    print(f"  Text: {r.payload['text'][:150]}...")
-    print()
+    print(f"\nQuery: '{query}'")
+    print("Top matches:")
+    for r in results.points:
+        print(f"  Score: {r.score:.3f} — Source: {r.payload['source']}")
+        print(f"  Text: {r.payload['text'][:150]}...")
+        print()
