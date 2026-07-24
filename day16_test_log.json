@@ -1,0 +1,102 @@
+[
+  {
+    "question": "How do I control who can access my S3 bucket?",
+    "answer": "To control who can access your S3 bucket, you should:\n\n1. Block public access to the S3 bucket using the Block Public Access settings. This setting is turned on by default at the bucket level and we recommend keeping it enabled unless you need it turned off for your specific use case.\n2. Use Access management and security features provided by Amazon S3. By default, S3 buckets and the objects in them are private, and you only have access to the S3 resources that you create. You can grant granular resource permissions that support your specific use case to control access to your bucket.\n3. Consider using S3 Object Ownership to manage access to data stored in your S3 bucket. This is a bucket-level setting that allows you to disable or enable ACLs and takes ownership of every object in your bucket. With ACLs disabled, the bucket owner owns all the objects in the bucket and manages access to data exclusively by using access-management policies.",
+    "source": [
+      "aws_s3.txt",
+      "aws_s3.txt",
+      "aws_s3.txt"
+    ],
+    "top_score": 0.75272614
+  },
+  {
+    "question": "What triggers a Lambda function to run?",
+    "answer": "API Gateway, Amazon S3, Amazon SQS, EventBridge, and over 200 other AWS services.",
+    "source": [
+      "aws_lambda.txt",
+      "aws_lambda.txt",
+      "aws_lambda.txt"
+    ],
+    "top_score": 0.7967638
+  },
+  {
+    "question": "How does Terraform know what infrastructure already exists?",
+    "answer": "Prior to any operation, Terraform does a refresh to update the state with the real infrastructure.",
+    "source": [
+      "terraform_state.txt",
+      "terraform_state.txt",
+      "terraform_state.txt"
+    ],
+    "top_score": 0.6742533
+  },
+  {
+    "question": "What is the capital of France?",
+    "answer": "I don't have information about that in my documents.",
+    "source": [
+      "terraform_state.txt",
+      "terraform_state.txt",
+      "terraform_state.txt"
+    ],
+    "top_score": 0.08514996
+  },
+  {
+    "question": "How do I set up a Kubernetes ingress controller?",
+    "answer": "I don't have information about that in my documents.",
+    "source": [
+      "my_personal_notes.txt",
+      "aws_s3.txt",
+      "terraform_state.txt"
+    ],
+    "top_score": 0.23677655
+  },
+  {
+    "question": "How do I store and manage infrastructure state?",
+    "answer": "According to the context, there are several options to store and manage infrastructure state in Terraform:\n\n1. **Local storage:** State is stored in a local file named terraform.tfstate, with a backup in terraform.tfstate.backup. However, this is not recommended due to collaboration limitations and potential data loss.\n\n2. **HCP Terraform (HashiCorp Cloud Platform) Terraform:** Storing state in HCP Terraform allows for secure access control and collaboration.\n\n3. **Remote backend:** Storing state in a remote backend also allows for secure access control and collaboration.\n\nIt's recommended to avoid storing state in version control systems or other storage solutions that do not support Terraform state locking and secure access control to prevent data loss or exposure of secrets.",
+    "source": [
+      "terraform_state.txt",
+      "terraform_state.txt",
+      "terraform_state.txt"
+    ],
+    "top_score": 0.515147
+  },
+  {
+    "question": "What's the cheapest way to keep rarely-used files in AWS?",
+    "answer": "Save costs by storing infrequently accessed data in S3 Standard-IA or S3 One Zone-IA.",
+    "source": [
+      "aws_s3.txt",
+      "aws_s3.txt",
+      "aws_s3.txt"
+    ],
+    "top_score": 0.51378906
+  },
+  {
+    "question": "Why would my Lambda function time out?",
+    "answer": "I don't have information about that in my documents.",
+    "source": [
+      "aws_lambda.txt",
+      "aws_lambda.txt",
+      "aws_lambda.txt"
+    ],
+    "top_score": 0.61283314
+  },
+  {
+    "question": "Why does streaming feel faster even if it isn't?",
+    "answer": "The context doesn't directly answer why streaming feels faster even if it isn't. However, it mentions that instead of seeing an empty screen when waiting for the entire output, streaming outputs the result piece by piece to make it more engaging. This suggests that the perceived speed is due to the user getting an immediate sense of progress.",
+    "source": [
+      "my_personal_notes.txt",
+      "my_personal_notes.txt",
+      "aws_lambda.txt"
+    ],
+    "top_score": 0.41200608
+  },
+  {
+    "question": "What should I be careful about?",
+    "answer": "According to the context in terraform_state.txt, you should be careful about storing your state in a version control system or other storage solution that does not support Terraform state locking and secure access control, because doing so can result in data loss or exposure of secrets stored in the state file. \n\nAlso, in terraform_state.txt, you should be careful not to directly edit the state file, instead use the \"terraform state\" command for modifications. \n\nAdditionally, in aws_s3.txt, you should be careful when using Amazon S3 to prevent data loss or exposure, for example, by using S3 Object Lock to prevent objects from being deleted or overwritten.",
+    "source": [
+      "aws_s3.txt",
+      "terraform_state.txt",
+      "aws_s3.txt"
+    ],
+    "top_score": 0.18120098
+  }
+]
