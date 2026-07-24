@@ -33,8 +33,11 @@ Question: {question}
 """
     return prompt
 
-def answer_question(question:str):
+def answer_question(question:str, similarity_thrshold: float=0.3):
     retrieved_chunks=retrieve(question)
+    top_score = retrieved_chunks[0].score if retrieved_chunks else 0
+    if top_score < similarity_thrshold:
+        return ("I don't have information about that in my documents.",retrieved_chunks)
     prompt = build_prompt(question,retrieved_chunks)
     response = groq.chat.completions.create(
     model = "llama-3.1-8b-instant",
