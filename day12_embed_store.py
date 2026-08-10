@@ -26,7 +26,7 @@ if collection_info.points_count > 0:
 else:
     
 
-    data_folder = "data"
+    data_folder = "data" #data folder in my local
     all_points = []
     point_id = 0
 
