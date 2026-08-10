@@ -125,3 +125,25 @@ was fixed at 0.
 - Non-determinism in LLM calls (missing `temperature=0`) can look exactly 
   like a retrieval or logic bug — worth ruling out early when debugging 
   inconsistent behavior
+
+  ### Reflection: How do I know this system works correctly?
+
+When a question is asked, it's embedded and compared against stored chunk 
+embeddings in Qdrant, which returns a wide set of topically similar 
+candidates. Each candidate is then paired with the question and re-scored 
+by a cross-encoder reranker, which reads both together rather than 
+comparing pre-computed vectors — the top 3 reranked results become the 
+final candidates.
+
+Two independent guardrails prevent hallucination. First, a deterministic 
+threshold checks Qdrant's top similarity score before the LLM is ever 
+called — if nothing retrieved is similar enough, the system refuses 
+immediately, with no LLM cost incurred. Second, even when retrieval 
+passes that threshold, the LLM is instructed to answer using ONLY the 
+retrieved context, not its own training knowledge, and to say it doesn't 
+know if the context doesn't contain the answer — this catches cases where 
+retrieval finds topically related content that doesn't actually contain 
+the specific fact asked. I verified this distinction directly: a question 
+about Lambda timeouts retrieved genuinely Lambda-related content at 0.61 
+similarity, but since none of it mentioned timeouts specifically, the LLM 
+correctly refused rather than fabricating an answer.
