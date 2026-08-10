@@ -30,10 +30,8 @@ def retrieve(question: str, wide_k: int = 10, final_k: int=3):
 
     scored = list(zip(candidates,rerank_scores))
     scored.sort(key=lambda x:x[1],reverse=True)
-
-
+  
     top_candidates = [ c for c, scores in scored[:final_k]]
-
 
     return top_candidates,qdrant_top_score
 
@@ -51,8 +49,6 @@ Question: {question}
 
 def answer_question(question:str, similarity_thrshold: float=0.3):
     retrieved_chunks, qdrant_top_score=retrieve(question)
-    print(retrieved_chunks)
-    print(qdrant_top_score)
     if not retrieved_chunks:
         return "I don't have information about that in my documents.", []   
 
