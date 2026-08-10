@@ -3,6 +3,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams,Distance, PointStruct
+from dotenv import load_dotenv
+
+load_dotenv()
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 splitter = RecursiveCharacterTextSplitter(
@@ -10,7 +13,10 @@ splitter = RecursiveCharacterTextSplitter(
     chunk_overlap = 50
 )
 
-client = QdrantClient("http://localhost:6333")
+client = QdrantClient(
+    url = os.getenv("QDRANT_URL"),
+    api_key = os.getenv("QDRANT_API_KEY")
+)
 collection_name = "genai_notes"
 
 if not client.collection_exists(collection_name):

@@ -1,9 +1,15 @@
 from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
-client = QdrantClient("http://localhost:6333")
-
+client = QdrantClient(
+    url = os.getenv("QDRANT_URL"),
+    api_key = os.getenv("QDRANT_API_KEY")
+)
 
 collection_name = "genai_notes"
 

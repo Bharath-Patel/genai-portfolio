@@ -7,7 +7,10 @@ from groq import Groq
 load_dotenv()
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
-client = QdrantClient("http://localhost:6333")
+client = QdrantClient(
+    url = os.getenv("QDRANT_URL"),
+    api_key = os.getenv("QDRANT_API_KEY")
+)
 collection_name = "genai_notes"
 groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
 reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
