@@ -3,25 +3,25 @@ from day15_rag import answer_question
 test_questions = [
     # Straightforward per-document (baseline check)
     "How do I control who can access my S3 bucket?",
-    # "What triggers a Lambda function to run?",
-    # "How does Terraform know what infrastructure already exists?",
+    "What triggers a Lambda function to run?",
+    "How does Terraform know what infrastructure already exists?",
 
-    # # Outside document scope entirely - should say "I don't know"
-    # "What is the capital of France?",
-    # "How do I set up a Kubernetes ingress controller?",
+    # Outside document scope entirely - should say "I don't know"
+    "What is the capital of France?",
+    "How do I set up a Kubernetes ingress controller?",
 
-    # # Ambiguous / cross-document
-    # "How do I store and manage infrastructure state?",
+    # Ambiguous / cross-document
+    "How do I store and manage infrastructure state?",
 
-    # # Tricky phrasing - same intent, different wording than the docs
-    # "What's the cheapest way to keep rarely-used files in AWS?",
-    # "Why would my Lambda function time out?",
+    # Tricky phrasing - same intent, different wording than the docs
+    "What's the cheapest way to keep rarely-used files in AWS?",
+    "Why would my Lambda function time out?",
 
-    # # Personal notes - casual phrasing test
-    # "Why does streaming feel faster even if it isn't?",
+    # Personal notes - casual phrasing test
+    "Why does streaming feel faster even if it isn't?",
 
-    # # Deliberately vague, could go multiple ways
-    # "What should I be careful about?",
+    # Deliberately vague, could go multiple ways
+    "What should I be careful about?",
 ]
 
 log = []
