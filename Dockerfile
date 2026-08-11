@@ -6,7 +6,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY day19_rag_api.py .
+COPY . .
 
 EXPOSE 8000
 
