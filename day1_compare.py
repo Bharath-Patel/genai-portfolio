@@ -36,6 +36,5 @@ Ollama_response = ollama.chat(  #send request to llama runnning in the local
 print("\n###ollama response####")
 print(type(Ollama_response))
 print(Ollama_response.message.content)
-
 #data = Ollama_response.model_dump() #to get the response , so that we can pick the message
 #print(data)
