@@ -14,7 +14,6 @@ def rag_interface(question):
 
     return answer, source_list
 
-
 demo = gr.Interface(
     fn=rag_interface,
     inputs=gr.Textbox(
