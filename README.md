@@ -147,3 +147,66 @@ the specific fact asked. I verified this distinction directly: a question
 about Lambda timeouts retrieved genuinely Lambda-related content at 0.61 
 similarity, but since none of it mentioned timeouts specifically, the LLM 
 correctly refused rather than fabricating an answer.
+
+## Week 4: Deployment, Documentation, Resume Prep
+
+- Migrated the vector database from local Docker Qdrant to Qdrant Cloud 
+  (free tier), making retrieval reachable from any hosting platform instead 
+  of only localhost
+- Updated `day12_embed_store.py` and `day15_rag.py` to connect via 
+  `QDRANT_URL` and `QDRANT_API_KEY` instead of a local connection string
+- Ran a full secrets audit (`git log --all --full-history -- .env`) to 
+  confirm no API keys were ever committed to version control
+- Built `app.py` — a Gradio interface wrapping the existing `answer_question()` 
+  pipeline, giving the project a browser-based demo in addition to the 
+  FastAPI JSON endpoint
+- Deployed to Hugging Face Spaces (Gradio SDK, free ZeroGPU tier)
+- Attempted a second deployment on Render (Docker-based, serving 
+  `day19_rag_api.py` directly):
+  - Diagnosed and hit a genuine free-tier resource limit: loading both the 
+    embedding model and cross-encoder reranker exceeded Render's 512MB RAM 
+    cap. Rather than force a fix on a hard infrastructure constraint, 
+    prioritized the working HF Spaces deployment and documented the 
+    tradeoff honestly instead
+
+### What I learned this week
+
+- Free-tier hosting platforms have real, differing constraints (GPU/package 
+  version requirements, RAM limits, import-order rules) that don't show up 
+  until you actually attempt deployment — this is a normal, expected part 
+  of shipping software, not a sign something is wrong with the underlying 
+  code
+- Knowing when to stop optimizing around a hard constraint (Render's 
+  memory limit) and use what's already working (HF Spaces) is itself a 
+  real engineering decision, not a failure to solve the problem
+
+  ## Month 1 Retro
+
+**What worked well:**
+Building project-first rather than tutorial-first meant every concept was 
+learned in the context of a real problem. The most valuable learning moments 
+came from debugging actual failures in my own system (e.g., diagnosing why 
+a Lambda timeout question was retrieving topically-related but factually 
+absent content) rather than following pre-built examples.
+
+**What was harder than expected:**
+Deployment and infrastructure friction (dependency conflicts on ZeroGPU, 
+memory limits on Render's free tier, secrets management) consumed a disproportionate amount of Week 4 relative to the core 
+RAG logic built in Weeks 1-3. This wasn't wasted time — it's real, 
+transferable DevOps-adjacent skill-building — but it means deployment work 
+should be budgeted more generously going forward.
+
+**A pattern worth watching:**
+Some debugging sessions (a non-deterministic LLM bug traced to a missing 
+`temperature=0`, a reranker-based threshold causing false-refusal 
+regressions) required multiple rounds of hypothesis-testing before finding 
+root cause. Valuable experience, but a signal to build small, deterministic 
+tests earlier when adding new pipeline stages, rather than only 
+stress-testing after full integration.
+
+**Going into Month 2:**
+Agents introduce multi-step decision loops, a meaningfully different 
+complexity class from a single retrieve-then-generate pass. Plan is to 
+test each new capability (tool use, memory, multi-step chains) in 
+isolation before combining them, rather than building the full agent 
+end-to-end and debugging everything at once.
