@@ -75,6 +75,4 @@ if __name__ == "__main__":
     print(f"Answer: {answer}\n")
     for r in sources:
         print(f"- {r.payload['source']} (score {r.score:.3f})")
-
-    
-    
+        

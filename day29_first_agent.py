@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
 
 # What agent.invoke(...) actually triggers
-# Input: you're handing it a starting message list — just your one human question, {"role": "user", "content": "What is 15% of 200?"}
+# Input: you're handing agent a starting message list — just your one human question, {"role": "user", "content": "What is 15% of 200?"}
 # Plan: the agent (powered by your llm) reads that message and decides: "do I have enough to answer directly, or do I need to call a tool first?" — this decision happens because create_agent wired your llm together with the list of available tools and their docstrings
 # Act (if a tool is chosen): if the model decides a tool call is needed, LangGraph actually executes your Python calculator function, with whatever arguments the model decided to pass
 # Observe: the tool's return value gets added back into the message history as a [tool] message (exactly what you saw: [tool] 30.0)
