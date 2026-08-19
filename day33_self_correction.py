@@ -10,7 +10,7 @@ from day15_rag import answer_question
 load_dotenv()
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="openai/gpt-oss-120b",
     temperature=0.3,
     api_key=os.getenv("GROQ_API_KEY")
 )
@@ -30,6 +30,12 @@ def research_node(state: WorkflowState) -> dict:
 def draft_node(state: WorkflowState) -> dict:
     print(f">>> Running draft_node (attempt {state['revision_count'] + 1})")
 
+    if "don't have information" in state["research_findings"]:
+        return {
+            "final_post": "I don't have enough information in my knowledge base to write about this topic.",
+            "revision_count": state["revision_count"] + 1
+        }
+
     feedback_note = ""
     if state.get("feedback"):
         feedback_note = f"\n\nPrevious attempt was rejected for this reason: {state['feedback']}. Please fix this."
@@ -48,7 +54,7 @@ Research: {state['research_findings']}{feedback_note}
 def check_node(state: WorkflowState) -> dict:
     print(">>> Running check_node")
 
-    if "don't have information" in state["research_findings"]:
+    if "don't have information" in state["research_findings"] or "don't have enough information" in state["final_post"]:
         return {"feedback": "PASS"}  # nothing to check if research failed - accept as-is
 
     check_prompt = f"""Does this LinkedIn post specifically reference real details from the research below, 

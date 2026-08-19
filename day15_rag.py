@@ -59,7 +59,7 @@ def answer_question(question:str, similarity_thrshold: float=0.3):
         return ("I don't have information about that in my documents.",retrieved_chunks)
     prompt = build_prompt(question,retrieved_chunks)
     response = groq.chat.completions.create(
-    model = "llama-3.1-8b-instant",
+    model = "openai/gpt-oss-20b",
     temperature=0,
     messages = [
         {"role" : "system","content" : "you are a helpful assistant answering questions based strictly on provided context."},
