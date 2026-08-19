@@ -210,3 +210,88 @@ complexity class from a single retrieve-then-generate pass. Plan is to
 test each new capability (tool use, memory, multi-step chains) in 
 isolation before combining them, rather than building the full agent 
 end-to-end and debugging everything at once.
+
+## Week 5-6: Agents, Multi-Step Workflows, Self-Correction
+
+- `day29_first_agent.py` — first LangGraph/LangChain agent using a single 
+  tool (calculator), built with `create_agent` (migrated from the 
+  deprecated `create_react_agent`). Learned the plan-act-observe-repeat 
+  loop that underlies all agent frameworks.
+- `day30_multi_tool_agent.py` — multi-tool agent combining a calculator 
+  with the Month 1 RAG pipeline wrapped as a tool, proving retrieval logic 
+  built in Month 1 could be composed into a new system without rebuilding it.
+- `day31_memory.py` — multi-turn conversation memory by accumulating and 
+  re-passing the full message history on each turn, with retry logic for 
+  a documented Groq tool-calling reliability issue.
+- `day32_workflow.py` — first explicit `StateGraph` workflow (research → 
+  draft), demonstrating fixed multi-step sequences vs. an agent's free 
+  tool selection.
+- `day33_self_correction.py` — added a conditional edge (research → draft 
+  → check → retry-or-end), where an LLM evaluates its own prior output and 
+  the graph branches based on that judgment, capped at 3 revisions to 
+  prevent infinite loops.
+- `day34_workflow_stress_test.py` — stress-tested the self-correction 
+  workflow across topics with and without matching source documents.
+
+### Real issues found and fixed this week
+
+1. **Tokenizer deadlock on concurrent tool calls** — when an agent issued 
+   two near-simultaneous tool calls, both independently initializing 
+   Hugging Face's tokenizer library caused a genuine hang, not just 
+   slowness. Fixed by setting `TOKENIZERS_PARALLELISM=false`.
+
+2. **Redundant tool-calling loop** — `llama-3.1-8b-instant` would 
+   sometimes call the same tool multiple times with slightly reworded 
+   queries even after getting a valid answer, despite explicit prompt 
+   instructions not to. Prompt-only fixes were insufficient; resolved 
+   with a hard, code-level call counter as a deterministic backstop — the 
+   same "don't fully trust model judgment alone" principle from the 
+   Month 1 RAG guardrails, now applied to tool-calling behavior.
+
+3. **Groq tool-calling reliability (`tool_use_failed`)** — intermittent, 
+   documented Groq API errors where the model produced malformed 
+   function-call syntax instead of a proper structured tool call 
+   (confirmed as a known issue via multiple independent GitHub reports 
+   from other projects). Mitigated with retry logic; also found that 
+   retrying at `temperature=0` is pointless for this specific failure mode, 
+   since a deterministic model will reproduce the same malformed output 
+   every time — retries only help when some variation is possible.
+
+4. **State corruption on failed turns** — a failed `agent.invoke()` call 
+   was still permanently appending the user's question to conversation 
+   history before the failure occurred, corrupting the next turn's context 
+   even though no real answer was ever given. Fixed by only committing to 
+   the shared history after a confirmed successful response.
+
+5. **Model deprecation mid-project** — Groq deprecated both 
+   `llama-3.1-8b-instant` and `llama-3.3-70b-versatile` during this 
+   project, breaking every file referencing them with a `model_not_found` 
+   error. Migrated to `openai/gpt-oss-20b` and `openai/gpt-oss-120b` 
+   respectively — a real example of a dependency changing outside my 
+   control mid-build, not a code bug.
+
+6. **Downstream blind spot from an upstream guardrail bypass** — a 
+   shortcut in `check_node` (skip evaluation when research found nothing, 
+   to avoid wasting retries) had an unintended side effect: `draft_node` 
+   still attempted to generate a post from empty research, producing 
+   literal unfilled placeholder text (`[insert tech topic]`), which then 
+   sailed through the bypassed check as "PASS" without ever being read. 
+   Fixed at the actual source (`draft_node` now returns an honest refusal 
+   when research fails) rather than patching the symptom in the check.
+
+### What I learned this week
+
+- Composing Month 1's RAG pipeline as a tool inside an agent worked with 
+  no changes to the underlying code — a real payoff of building modular, 
+  independently-tested components rather than one monolithic script
+- LLM-as-judge (using a model to evaluate another model's output) is a 
+  real, useful pattern but inherits the same reliability weaknesses as any 
+  other LLM call — it is not inherently more trustworthy just because its 
+  job is to check something
+- Bugs in multi-stage pipelines often hide at the boundary between stages 
+  — a fix or shortcut in one node can create a blind spot in a completely 
+  different node, which is why stress-testing the full pipeline end-to-end 
+  matters more than testing each node in isolation
+- Model providers can deprecate models with limited notice; hardcoding a 
+  specific model string throughout a codebase is a real maintenance 
+  liability worth being aware of, even in a personal project
