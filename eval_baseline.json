@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-08-27T11:34:18.837242",
+  "avg_faithfulness": 0.9047619047619048,
+  "avg_context_precision": 0.9999999999444444,
+  "perr_question_faithfulness": [
+    0.7142857142857143,
+    1.0,
+    1.0
+  ]
+}
