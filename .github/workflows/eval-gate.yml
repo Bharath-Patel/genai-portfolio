@@ -3,6 +3,10 @@ name: RAG Evaluation Gate
 on:
   push:
     branches: [main]
+    paths:
+      - 'day15_rag.py'
+      - 'day37_eval_gate.py'
+      - 'requirements.txt'
   workflow_dispatch:
 
 jobs:
@@ -28,4 +32,4 @@ jobs:
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
         run: |
-          python3 day37_eval_gate.py
+          python3 day17_guardrail_test.py
