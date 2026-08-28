@@ -91,7 +91,6 @@ python-multipart
 pytz
 PyYAML
 qdrant-client
-ragas
 regex
 requests
 requests-toolbelt
