@@ -295,3 +295,72 @@ end-to-end and debugging everything at once.
 - Model providers can deprecate models with limited notice; hardcoding a 
   specific model string throughout a codebase is a real maintenance 
   liability worth being aware of, even in a personal project
+
+  ## Week 7-8: Formal Evaluation, Drift Detection, Guardrails, and CI/CD
+
+- `day36_ragas_eval.py` — first formal Ragas evaluation of the Month 1 RAG 
+  pipeline (faithfulness, context precision), establishing a numeric 
+  baseline (faithfulness ~0.79-0.90, context precision ~0.94-1.0) instead 
+  of relying on manual read-throughs.
+- `day37_eval_gate.py` — turned evaluation into an automated pass/fail 
+  gate using proper exit codes (0 = pass, 1 = fail), the same mechanism 
+  any CI system uses to know whether a step succeeded.
+- `day38_drift_detection.py` — baseline-comparison drift detection: saves 
+  a reference run and flags future runs that degrade beyond a tolerance, 
+  distinct from a fixed threshold check.
+- `day39_cost_guardrail.py` — a reusable `CallBudget` class capping total 
+  LLM/tool calls per request, added as a general pattern; honestly 
+  assessed as currently redundant with the existing per-tool call limit 
+  in a single-tool system, but designed for future multi-tool scenarios.
+- `.github/workflows/eval-gate.yml` — GitHub Actions workflow running the 
+  eval gate automatically on push, with a `paths:` filter limiting runs 
+  to changes that actually affect the pipeline.
+
+### Real issues found and fixed this week
+
+1. **A loop-indentation bug that ran evaluation once per partial batch 
+   instead of once on the complete dataset** — evaluation and dataset 
+   construction were nested inside the data-collection loop instead of 
+   after it, causing a crash on the very first (incomplete) iteration. 
+   Same category of bug as Day 12's `continue` logic inversion — 
+   structural placement, not faulty logic.
+
+3. **A NaN silently passing a quality gate** — when `context_precision` 
+   failed to compute (returned NaN due to timeouts), the threshold check 
+   `avg_context_precision < THRESHOLD` evaluated to `False`, since any 
+   comparison involving NaN in Python returns False. The gate reported 
+   "PASSED" on a metric that had completely failed to compute. Fixed with 
+   an explicit `math.isnan()` check. This is a genuinely dangerous class 
+   of bug for any automated quality gate — a missing result silently 
+   looking identical to a good result.
+
+5. **Grep missing a package due to hyphen/underscore mismatch** — 
+   searched for `langgraph-agents` (hyphen) while the actual line in 
+   `requirements.txt` used `langgraph_agents` (underscore). Pip treats 
+   these as equivalent; plain text search tools do not — a subtle, easy 
+   trap when hunting for a package by name in a text file.
+
+6. **Evaluation timeouts from excessive concurrency** — Ragas's default 
+   concurrent request count overwhelmed Groq's API/network conditions in 
+   CI, causing multiple evaluation calls to time out and produce NaN 
+   results. Fixed via `RunConfig(timeout=300, max_workers=2)`, trading 
+   evaluation speed for reliability — the same reliability-over-speed 
+   tradeoff as Day 31's tool-calling retry logic.
+
+### What I learned this week
+
+- Formal evaluation metrics don't replace manual testing, they formalize 
+  and scale it — faithfulness and context precision are numeric versions 
+  of exactly the "does this actually match the source" and "was this the 
+  right thing to retrieve" questions I was already asking by hand in 
+  Month 1
+- Installing heavyweight tooling (Ragas) alongside a core application 
+  stack (LangChain/LangGraph) in one shared environment is a real, 
+  recurring source of dependency conflicts — separating "what the 
+  application needs" from "what evaluation tooling needs" into different 
+  environments or CI steps is a legitimate architectural decision, not 
+  a workaround
+- Concurrency settings that work fine locally can behave very differently 
+  in CI due to network conditions, rate limits, or resource constraints — 
+  worth treating concurrency/timeout tuning as an environment-specific 
+  concern, not a one-time setting
