@@ -32,4 +32,4 @@ jobs:
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
         run: |
-          python3 day17_guardrail_test.py
+          python3 day37_eval_gate.py
