@@ -69,8 +69,8 @@ if __name__ == "__main__":
     if avg_faithfulness < FAITHFULNESS_THRESHOLD:
         print(f"FAILED: faithfulness is {avg_faithfulness:.3f} below threshold {FAITHFULNESS_THRESHOLD}")
         failed = True
-    if math.isnan(avg_context_precision) or avg_context_precision < CONTEXT_PRECISION: #added Nan as Github CI is hitting rate limits
-        print(f"FAILED: context precision is {avg_context_precision:.3f} below threshold {NaN or CONTEXT_PRECISION_THRESHOLD}")
+    if math.isnan(avg_context_precision) or avg_context_precision < CONTEXT_PRECISION_THRESHOLD:
+        print(f"FAILED: context precision is {avg_context_precision} (NaN or below threshold {CONTEXT_PRECISION_THRESHOLD})")
         failed = True
     
     if failed:
@@ -78,4 +78,3 @@ if __name__ == "__main__":
     else:
         print("PASSED: all metrics meet threshold")
         sys.exit(0)
-
