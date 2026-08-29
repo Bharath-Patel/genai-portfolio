@@ -8,17 +8,23 @@ from langchain_groq import ChatGroq
 from ragas.llms import LangchainLLMWrapper
 import os
 import math
+from ragas.run_config import RunConfig
 
 load_dotenv()
 
 FAITHFULNESS_THRESHOLD = 0.6
-CONTEXT_PRECISION = 0.8
+CONTEXT_PRECISION_THRESHOLD = 0.8
 
 eval_llm = LangchainLLMWrapper(ChatGroq(
     model = "openai/gpt-oss-120b",
     temperature = 0,
     api_key = os.getenv("GROQ_API_KEY")
 ))
+
+run_config = RunConfig(
+    timeout=300,        # increase from Ragas's default to 5 minutes per call
+    max_workers=2,       # reduce concurrent requests, less likely to overwhelm Groq or hit rate limits
+)
 
 test_questions = [
     "How do I control who can access my S3 bucket?",
@@ -51,7 +57,8 @@ def run_eval():
     result = evaluate(
         eval_dataset,
         metrics=[faithfulness,context_precision],
-        llm=eval_llm
+        llm=eval_llm,
+        run_config=run_config,
     )
     return result
 
@@ -63,7 +70,7 @@ if __name__ == "__main__":
     avg_context_precision = df["context_precision"].mean()
 
     print(f"Average faithfulness is {avg_faithfulness:.3f}, (threshold is {FAITHFULNESS_THRESHOLD})")
-    print(f"Average context_precision is {avg_context_precision:.3f}, (threshold is {CONTEXT_PRECISION})")
+    print(f"Average context_precision is {avg_context_precision:.3f}, (threshold is {CONTEXT_PRECISION_THRESHOLD})")
 
 
     if avg_faithfulness < FAITHFULNESS_THRESHOLD:
