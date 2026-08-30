@@ -20,10 +20,12 @@ eval_llm = LangchainLLMWrapper(ChatGroq(
     temperature = 0,
     api_key = os.getenv("GROQ_API_KEY")
 ))
-
+#dataset has 3 questions, and you're evaluating 2 metrics (faithfulness, context_precision) for each one. 
+#That's "Evaluating: 6/6" — 3 questions × 2 metrics = 6 total evaluation jobs.
+#For each of those 6 jobs, Ragas makes its own separate call to eval_llm,each one Ragas constructing its own specific evaluation prompt behind the scenes and sending it through your eval_llm
 run_config = RunConfig(
     timeout=300,        # increase from Ragas's default to 5 minutes per call
-    max_workers=2,       # reduce concurrent requests, less likely to overwhelm Groq or hit rate limits
+    max_workers=2,       # reduce concurrent requests, less likely to overwhelm Groq or hit rate limits,at any given moment, only 2 of those 6 jobs are actively in-flight (sent to Groq, waiting for a response). Once one of those 2 finishes, the next queued job starts.
 )
 
 test_questions = [

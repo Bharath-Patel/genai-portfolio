@@ -14,13 +14,13 @@ question = "what is the capital of India?"
 groq_client=Groq(api_key=os.getenv("GROQ_API_KEY")) #creates a groq client object to authenticate with groq API key loaded from env file
 
 groq_response=groq_client.chat.completions.create(   #Send Request to Groq by calling the chat completion API i.e asking to Generate an answer for this conversation.
-                model = "llama-3.1-8b-instant", #tells groq which LLM to use
+                model = "openai/gpt-oss-20b", #tells groq which LLM to use
                 messages = [ 
                     { "role": "user",
                       "content": question}
                 ] #chat models expect a list of messages.
 )
-print(type(groq_response))
+print(groq_response)
 print("###groq response #####")
 print(groq_response.choices[0].message.content)
 
@@ -34,7 +34,7 @@ Ollama_response = ollama.chat(  #send request to llama runnning in the local
 )
 
 print("\n###ollama response####")
-print(type(Ollama_response))
+print(Ollama_response)
 print(Ollama_response.message.content)
 #data = Ollama_response.model_dump() #to get the response , so that we can pick the message
 #print(data)
