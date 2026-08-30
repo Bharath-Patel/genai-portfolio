@@ -60,21 +60,21 @@ else:
             point_id += 1
 
 
-    client.upsert(collection_name=collection_name,points=all_points)
-    print(f"\nTotal chunks embedded and stored: {len(all_points)}")
+        client.upsert(collection_name=collection_name,points=all_points)
+        print(f"\nTotal chunks embedded and stored: {len(all_points)}")
 
-    query = "How do I manage state file locking in Terraform?"
-    query_embedding = model.encode(query).tolist()
+query = "How do I manage state file locking in Terraform?"
+query_embedding = model.encode(query).tolist()
 
-    results = client.query_points(
-        collection_name=collection_name,
-        query=query_embedding,
-        limit=3 # top 3 closest matches
-    )
+results = client.query_points(
+    collection_name=collection_name,
+    query=query_embedding,
+    limit=3 # top 3 closest matches
+)
 
-    print(f"\nQuery: '{query}'")
-    print("Top matches:")
-    for r in results.points:
-        print(f"  Score: {r.score:.3f} — Source: {r.payload['source']}")
-        print(f"  Text: {r.payload['text'][:150]}...")
-        print()
+print(f"\nQuery: '{query}'")
+print("Top matches:")
+for r in results.points:
+    print(f"  Score: {r.score:.3f} — Source: {r.payload['source']}")
+    print(f"  Text: {r.payload['text'][:150]}...")
+    print()

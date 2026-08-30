@@ -12,7 +12,7 @@ groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 @app.get("/chat") #@app is the decorator,if any HTTP GET request to /chat, run the function immediately below
 def chat(question: str="What is the capital of India?"):
     groq_response = groq_client.chat.completions.create(
-                    model = "llama-3.1-8b-instant",
+                    model = "openai/gpt-oss-20b",
                     messages = [ 
                     { "role": "user",
                       "content": question}

@@ -12,7 +12,7 @@ groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def gather_stream(question:str, temperature:float, system_prompt:str):
     stream = groq_client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         temperature=temperature,
         messages=[{"role":"system","content":system_prompt},
                    {"role":"user","content":question}],

@@ -14,7 +14,7 @@ def chat(
     system_prompt: str = "You are a helpful, concise assistant."):
 
     groq_response = groq_client.chat.completions.create(
-        model = "llama-3.1-8b-instant",
+        model = "openai/gpt-oss-20b",
         temperature = temperature,
         messages = [
             {"role" : "system", "content": system_prompt},

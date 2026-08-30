@@ -10,7 +10,7 @@ sentences = [
 ]
 
 embeddings = model.encode(sentences) #create embeddings(list of numbers) of sentences
-
+print(len(embeddings))
 print("Embedding for 'I love my dog' (first 10 numbers of many):")
 print(embeddings[0][:10])
 print(f"total length of this embedding: {len(embeddings[0])} numbers")
@@ -22,6 +22,6 @@ print("=== Similarity scores (1.0 = identical meaning, 0 = unrelated) ===\n")
 
 for i in range(len(embeddings)):
     for j in range(i+1,len(embeddings)):
-        score = cos_sim(embeddings[i],embeddings[j]).item() #cos_sim returns a tensor, but we need a plain similarity score. .item() extracts the plain Python number out of that tensor wrapper
+        score = cos_sim(embeddings[i],embeddings[j]).item() #cos_sim returns a tensor, but we need a plain similarity score. .item() extracts the plain number out of that tensor wrapper
         print(f"'{sentences[i]}' <----> '{sentences[j]}'")
         print(f"Similarity {score:.3f}\n")

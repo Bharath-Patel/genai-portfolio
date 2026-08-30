@@ -13,7 +13,7 @@ async def callgroq():
     await asyncio.sleep(2)
     groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
     groq_response = await groq_client.chat.completions.create(
-                model = "llama-3.1-8b-instant",
+                model = "openai/gpt-oss-20b",
                 messages = [ 
                     { "role": "user",
                       "content": question}
@@ -43,7 +43,7 @@ async def call_ollama_again():
 
 async def main():
     start = time.time()
-    results = await asyncio.gather(callgroq(),call_ollama(),call_ollama_again())
+    results = await asyncio.gather(callgroq(),call_ollama(),call_ollama_again()) #Fire them all concurrently, and pause right here(used await) until the very last one finishes and hands back its data.
     #result_groq = await callgroq()
     # result_ollama = await call_ollama()
     # result_ollama_again = await call_ollama_again()
@@ -54,4 +54,5 @@ async def main():
         print("=====")
     print(f"Total time (concurrent): {end - start:.2f} seconds")
 
-asyncio.run(main())
+asyncio.run(main()) #Normal Python doesn't know how to talk to an async function directly. asyncio.run(main()) acts as the starter motor that boots up the Event Loop and hands control over to your async code.
+#Async code requires a manager called an Event Loop to coordinate the pausing, switching, and resuming of functions.
