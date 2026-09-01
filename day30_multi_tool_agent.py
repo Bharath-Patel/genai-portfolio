@@ -7,6 +7,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from day15_rag import answer_question
 
 load_dotenv()
+_kb_search_call_count = {"count": 0}
 
 @tool
 def calculator(expression: str) -> str:
@@ -16,8 +17,6 @@ def calculator(expression: str) -> str:
         return str(result)
     except Exception as e:
         return f"Error: {e}"
-
-_kb_search_call_count = {"count": 0}
 
 @tool
 def knowledge_base_search(question: str) -> str:
@@ -36,7 +35,7 @@ def knowledge_base_search(question: str) -> str:
     return answer
 
 llm = ChatGroq(
-    model="llama-3.1-8b-instant",
+    model="openai/gpt-oss-20b",
     temperature=0,
     api_key=os.getenv("GROQ_API_KEY")
 )
