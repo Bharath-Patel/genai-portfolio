@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance,PointStruct
+from qdrant_client.models import VectorParams, Distance,PointStruct,PayloadSchemaType
+
 load_dotenv()
 model = SentenceTransformer("all-MiniLM-L6-v2")
 client = QdrantClient(url = os.getenv("QDRANT_URL"),api_key =os.getenv("QDRANT_API_KEY"))
@@ -16,6 +17,12 @@ if not client.collection_exists(collection_name):
         collection_name = collection_name,
         vectors_config = VectorParams(size=384, distance=Distance.COSINE)
     )
+
+    client.create_payload_index(
+        collection_name=collection_name,
+        field_name = "role",
+        field_schema = PayloadSchemaType.KEYWORD #telling Qdrant what kind of data type this field holds, and therefore what kind of matching makes sense for it
+    )    #KEYWORD means: "this field holds exact, discrete string values — like categories or tags
     
 FILE_ROLE_MAP = {
     "aws_s3.txt": ["engineer", "admin"],
