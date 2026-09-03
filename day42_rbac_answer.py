@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 from day42_rbac_retrieve import retrieve_with_rbac
+from day43_audit_log import init_db, log_query
 
 load_dotenv()
 groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -13,13 +14,18 @@ def answer_with_rbac(question: str, user_role: str):
     retrieved_chunks = retrieve_with_rbac(question, user_role=user_role, top_k=3)
 
     if not retrieved_chunks:
-        return "No accessible documents matched this query.", []
+        answer =  "No accessible documents matched this query."
+        log_query(user_role,question,status="access_denied",sources_used = [],answer=answer)
+        return answer,[]
 
     top_score = retrieved_chunks[0].score
+    sources_used = [ r.payload["source"] for r in retrieved_chunks]
 
     # SAME guardrail logic as Month 1 - the exact protection we're testing
     if top_score < SIMILARITY_THRESHOLD:
-        return "I don't have information about that in my documents.", retrieved_chunks
+        answer = "I don't have information about that in my documents."
+        log_query(user_role, question, status=access_granted_no_answer, sources_used=sources_used, answer=answer)
+        return answer, retrieved_chunks
 
     context = "\n\n".join(f"[Source: {r.payload['source']}]\n{r.payload['text']}" for r in retrieved_chunks)
     prompt = f"""Answer the question using ONLY the context below.
@@ -39,7 +45,13 @@ Question: {question}
             {"role": "user", "content": prompt}
         ]
     )
-    return response.choices[0].message.content, retrieved_chunks
+    answer = response.choices[0].message.content
+    if "don't have information" in answer.lower():
+        status = "access_granted_no_answer"
+    else:
+        status = "access_granted_answered"
+    log_query(user_role, question, status=status, sources_used=sources_used, answer=answer)
+    return answer, retrieved_chunks
 
 
 if __name__ == "__main__":
@@ -54,3 +66,7 @@ if __name__ == "__main__":
     answer, sources = answer_with_rbac(question, user_role="admin")
     print(f"Answer: {answer}")
     print(f"Top score was: {sources[0].score:.3f}" if sources else "No sources")
+
+    print("\n=== As 'engineer', asking something legitimately accessible ===")
+    answer, sources = answer_with_rbac("How do I control who can access my S3 bucket?", user_role="engineer")
+    print(f"Answer: {answer}")
