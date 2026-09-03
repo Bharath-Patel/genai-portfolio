@@ -364,3 +364,71 @@ end-to-end and debugging everything at once.
   in CI due to network conditions, rate limits, or resource constraints — 
   worth treating concurrency/timeout tuning as an environment-specific 
   concern, not a one-time setting
+
+  ## Week 9: Flagship Project - Role-Based Access Control + Audit Logging
+
+Built a "Policy & Compliance Assistant" - composing the entire Month 1-2 
+pipeline (retrieval, reranking, guardrails, generation) with two new 
+capabilities specifically targeting the enterprise/regulated-industry 
+angle identified in the Charlotte market research: access control and 
+audit logging.
+
+- `day42_rbac_setup.py` — created a separate Qdrant collection with each 
+  chunk tagged by an `allowed_roles` payload field (engineer: 55 chunks, 
+  admin-only: 24 chunks), keeping the original Month 1 collection untouched
+- `day42_rbac_retrieve.py` — implemented access control using Qdrant's 
+  native payload filtering (`FieldCondition` + `MatchAny`), enforced at 
+  the query level so restricted documents are never even considered as 
+  retrieval candidates, not filtered out after the fact
+- `day42_rbac_answer.py` — combined RBAC-filtered retrieval with the 
+  existing similarity threshold guardrail and generation
+- `day43_audit_log.py` — a persistent SQLite audit log, refined from an 
+  initial binary `access_granted` field to a three-state `status` field 
+  (`access_denied`, `access_granted_no_answer`, `access_granted_answered`) 
+  after finding the binary version misleadingly logged "granted" even 
+  when the LLM itself declined to answer
+- `day44_rbac_api.py` — exposed the full pipeline via FastAPI: `/ask` for 
+  actual use, `/audit/logs` and `/audit/summary` for compliance review
+- `day44_summarize.py` — aggregates audit log entries by status using a 
+  counting-dictionary pattern
+
+### Key finding: two-layer guardrails matter even more with access control
+
+Testing an engineer-role query about content that only exists in the 
+admin-only document revealed a real, important failure mode specific to 
+RBAC systems: retrieval is forced to return the "best available" result 
+from *permitted* documents, even when nothing permitted is actually 
+relevant. In this case, an engineer's async-programming question scored 
+0.303 against irrelevant Lambda content - just above the 0.3 hard 
+threshold, but the LLM's own honesty check correctly caught that the 
+content didn't actually address the question and refused rather than 
+fabricating an answer. Without this second layer, an access-controlled 
+system could confidently generate wrong answers built on content that 
+was only retrieved because it was the least-bad option among what a role 
+could see - a subtler and more dangerous failure mode than a normal RAG 
+system without access restrictions.
+
+### Real issues found and fixed
+
+1. **Missing `create_payload_index`** - Qdrant requires an explicit index 
+   on any payload field before it can be used in a filter, distinct from 
+   the vector similarity index (HNSW) used for retrieval itself. 
+   Attempting to filter on an unindexed field returns a clear 400 error 
+   naming the exact field and required index type.
+2. **Binary access-tracking field masking a real event** - the original 
+   `access_granted` boolean logged `True` for a case where the LLM 
+   declined to answer, making a refusal indistinguishable from a genuine 
+   answer in the audit trail. Replaced with a three-state status field 
+   before this reached anything resembling production use.
+
+### What I learned this week
+
+- Filtering for access control must happen at the retrieval/query level, 
+  not as a post-processing step - filtering after the fact both risks 
+  momentarily exposing restricted content and can crowd out legitimate 
+  results that would have ranked lower only because higher-ranked 
+  restricted content was competing for the same top-K slots
+- A field designed for later audit/review needs to capture every 
+  distinct outcome a reviewer would actually care about distinguishing - 
+  a boolean is often not expressive enough once you think through what 
+  questions the log needs to answer
