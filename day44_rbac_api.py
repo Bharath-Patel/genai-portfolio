@@ -44,3 +44,15 @@ def audit_summary():
     rows = get_all_logs()
     summary = summarize_audit_log(rows)
     return {"summary": summary}
+
+
+#cases to test
+
+#uvicorn day44_rbac_api:app --reload
+# curl -G "localhost:8000/ask" --data-urlencode "question=How do I control who can access my S3 bucket?" --data-urlencode "user_role=engineer"
+
+# curl -G "localhost:8000/ask" --data-urlencode "question=What did I learn about async programming?" --data-urlencode "user_role=admin"
+
+# curl "localhost:8000/audit/summary"
+
+# curl "localhost:8000/audit/logs"

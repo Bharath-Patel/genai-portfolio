@@ -35,7 +35,7 @@ def log_query(user_role: str, question:str, status:str, sources_used: str, answe
         user_role,
         question,
         status,
-        ','.join(sources_used), #sources_used column is defined as TEXT
+        ','.join(sources_used), #sources_used column is defined as TEXT and it's returned as list of comma seperated strings
         answer
     ))
     conn.commit()
