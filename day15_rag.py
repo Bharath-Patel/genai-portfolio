@@ -3,8 +3,15 @@ from qdrant_client import QdrantClient
 import os
 from dotenv import load_dotenv
 from groq import Groq
+import boto3
 
 load_dotenv()
+
+bedrock = boto3.client('bedrock-runtime',
+                    region_name= os.getenv("AWS_REGION"),
+                    aws_access_key_id= os.getenv("AWS_ACCESS_KEY_ID"),
+                    aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+                )
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 client = QdrantClient(
@@ -50,14 +57,40 @@ Question: {question}
 """
     return prompt
 
-def answer_question(question:str, similarity_thrshold: float=0.3):
+def answer_question(question:str,provider: str, similarity_thrshold: float=0.3):
     retrieved_chunks, qdrant_top_score=retrieve(question)
+    retrieved_chunks.sort(key=lambda x:x.score, reverse=True)
+ 
     if not retrieved_chunks:
         return "I don't have information about that in my documents.", []   
 
     if qdrant_top_score < similarity_thrshold:
         return ("I don't have information about that in my documents.",retrieved_chunks)
     prompt = build_prompt(question,retrieved_chunks)
+
+    if provider == "bedrock":
+        answer = generate_with_bedrock(prompt)
+    else:
+        answer = generate_with_groq(prompt)
+    print("top 3 retrievals with respective similarity scores")
+    for r in retrieved_chunks:
+        print(f"- {r.payload['source']} (score {r.score:.3f})")
+    return answer    
+
+def generate_with_bedrock(prompt: str) -> str:
+    response = bedrock.converse(
+        modelId = "amazon.nova-micro-v1:0",
+        messages =[{
+            'role': 'user',
+            'content': [{'text': prompt}]
+       }],
+        system = [{'text': "You are a helpful assistant answering questions based strictly on provided context."}],
+        inferenceConfig={"temperature": 0}
+    )
+
+    return response["output"]["message"]["content"][0]["text"]
+
+def generate_with_groq(prompt: str) -> str:
     response = groq.chat.completions.create(
     model = "openai/gpt-oss-20b",
     temperature=0,
@@ -66,13 +99,15 @@ def answer_question(question:str, similarity_thrshold: float=0.3):
         {"role": "user", "content": prompt}
     ])
 
-    return response.choices[0].message.content, retrieved_chunks
+    return response.choices[0].message.content
 
 if __name__ == "__main__":
     question = "How do I control who can access my S3 bucket?"
-    answer, sources = answer_question(question)
-    print(f"Question: {question}\n")
-    print(f"Answer: {answer}\n")
-    for r in sources:
-        print(f"- {r.payload['source']} (score {r.score:.3f})")
-        
+    print("=== Groq ===")
+    answer = answer_question(question, provider="groq")
+    print("=== Answer ===")
+    print(answer)
+    print("=== Bedrock ===")
+    answer = answer_question(question, provider="bedrock")
+    print("=== Answer ===")
+    print(answer)
