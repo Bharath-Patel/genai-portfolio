@@ -57,7 +57,7 @@ Question: {question}
 """
     return prompt
 
-def answer_question(question:str,provider: str, similarity_thrshold: float=0.3):
+def answer_question(question:str,provider: str = "groq", similarity_thrshold: float=0.3):
     retrieved_chunks, qdrant_top_score=retrieve(question)
     retrieved_chunks.sort(key=lambda x:x.score, reverse=True)
  
