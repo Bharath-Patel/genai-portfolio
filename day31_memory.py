@@ -2,7 +2,7 @@ import os
 import time
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-#from langfuse.langchain import CallbackHandler
+from langfuse.langchain import CallbackHandler
 from langchain.agents import create_agent
 from langchain_groq import ChatGroq
 from langchain_core.tools import tool
@@ -11,7 +11,7 @@ from day15_rag import answer_question
 from day39_cost_guardrail import CallBudget, LLMCallBudgetExceeded
 
 load_dotenv()
-#langfuse_handler = CallbackHandler()
+langfuse_handler = CallbackHandler()
 _kb_search_call_count = {"count": 0}
 request_budget = CallBudget(max_calls=2)
 
@@ -60,7 +60,8 @@ def ask(question: str, max_retries: int = 3):
         try:
             result = agent.invoke(
                 {"messages": attempt_history},
-                config={"recursion_limit": 10}
+                config={"recursion_limit": 10,
+                "callbacks": [langfuse_handler]}
             )
             conversation_history = result["messages"]
             final_message = conversation_history[-1]
