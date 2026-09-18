@@ -72,9 +72,9 @@ def answer_question(question:str,provider: str = "groq", similarity_thrshold: fl
         answer = generate_with_bedrock(prompt)
     else:
         answer = generate_with_groq(prompt)
-    print("top 3 retrievals with respective similarity scores")
-    for r in retrieved_chunks:
-        print(f"- {r.payload['source']} (score {r.score:.3f})")
+    #print("top 3 retrievals with respective similarity scores")
+    # for r in retrieved_chunks:
+    #     print(f"- {r.payload['source']} (score {r.score:.3f})")
     return answer,retrieved_chunks   
 
 def generate_with_bedrock(prompt: str) -> str:

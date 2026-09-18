@@ -39,8 +39,8 @@ def human_review_node(state: HITLState) -> dict:
 
 def generate_node(state: HITLState) -> dict:
     context = "\n\n".join(f"[Source: {c['source']}\n{c['text']}]" for c in state["retrieved_chunks"])
-    prompt=f"""Answer question using ONLY thecontext below.
-    If you answer isn't in the context, say "I don't have information about that in my documents
+    prompt=f"""Answer question using ONLY the context below.
+    If your answer isn't in the context, say "I don't have information about that in my documents
     
     Context: {context}
     
