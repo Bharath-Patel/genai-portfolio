@@ -7,6 +7,7 @@ anyio
 appdirs
 attrs
 brotli
+boto3==1.43.91
 certifi
 charset-normalizer
 click
@@ -52,6 +53,7 @@ langchain-core==1.6.0
 langchain-groq==1.1.3
 langchain-protocol
 langchain-text-splitters>=1.1.2
+langfuse==4.15.2
 langgraph==1.2.11
 langgraph-checkpoint==4.2.0
 langgraph-prebuilt==1.1.0

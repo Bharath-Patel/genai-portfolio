@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-rag-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-rag-api
+  template:
+    metadata:
+      labels:
+        app: genai-rag-api
+    spec:
+      containers:
+      - name: genai-rag-api
+        image: 053285355767.dkr.ecr.us-east-1.amazonaws.com/genai-rag-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        envFrom:
+          - secretRef:
+              name: genai-secrets
