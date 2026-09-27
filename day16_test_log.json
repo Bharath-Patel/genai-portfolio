@@ -1,85 +1,5 @@
 [
   {
-    "question": "How do I control who can access my S3 bucket?",
-    "answer": "You can control access to an S3 bucket by explicitly granting permissions. The main ways to do this are:\n\n1. **Bucket policies** \u2013 Use IAM\u2011based policy language to set resource\u2011based permissions for the bucket and its objects.  \n2. **IAM policies** \u2013 Centrally manage permissions that control which AWS users or roles can access the bucket.  \n3. **Access control lists (ACLs)** \u2013 Grant read and write permissions to individual users or groups, though it\u2019s generally recommended to use bucket or IAM policies instead.  \n4. **S3 Access Points** \u2013 Provide a dedicated access point with its own policy for fine\u2011grained control.\n\nBy applying one or more of these mechanisms, you can specify exactly who is authenticated and authorized to use your S3 resources.",
-    "source": [
-      "aws_s3.txt",
-      "aws_s3.txt",
-      "aws_s3.txt"
-    ],
-    "top_score": 0.7364916
-  },
-  {
-    "question": "What triggers a Lambda function to run?",
-    "answer": "A Lambda function runs when it is triggered by an event or API call from another AWS service. Typical triggers include API Gateway, Amazon S3, Amazon SQS, EventBridge, and more than 200 other AWS services.",
-    "source": [
-      "aws_lambda.txt",
-      "aws_lambda.txt",
-      "aws_lambda.txt"
-    ],
-    "top_score": 0.7967638
-  },
-  {
-    "question": "How does Terraform know what infrastructure already exists?",
-    "answer": "Terraform knows what infrastructure already exists by using its state file. The state file stores bindings between the resources defined in your configuration and the actual objects in the remote system. Before any operation, Terraform performs a **refresh** to update the state with the current real\u2011world infrastructure, allowing it to map existing resources to the configuration and determine what changes, if any, are needed.",
-    "source": [
-      "terraform_state.txt",
-      "terraform_state.txt",
-      "terraform_state.txt"
-    ],
-    "top_score": 0.6742533
-  },
-  {
-    "question": "What is the capital of France?",
-    "answer": "I don't have information about that in my documents.",
-    "source": [
-      "terraform_state.txt",
-      "aws_s3.txt",
-      "aws_s3.txt"
-    ],
-    "top_score": 0.08444317
-  },
-  {
-    "question": "How do I set up a Kubernetes ingress controller?",
-    "answer": "I don't have information about that in my documents.",
-    "source": [
-      "my_personal_notes.txt",
-      "aws_s3.txt",
-      "terraform_state.txt"
-    ],
-    "top_score": 0.23677655
-  },
-  {
-    "question": "How do I store and manage infrastructure state?",
-    "answer": "To store and manage infrastructure state with Terraform, follow these guidelines:\n\n1. **Default local storage**  \n   - Terraform automatically writes each workspace\u2019s state to a local file named `terraform.tfstate`.  \n   - A backup of the previous state is kept in `terraform.tfstate.backup`.  \n   - Local storage requires no extra configuration but limits collaboration and risks losing state if the file is lost.\n\n2. **Remote or cloud backends**  \n   - For better collaboration and security, store state in a remote backend such as HCP Terraform or another supported remote backend.  \n   - Remote backends provide secure storage, state locking, and access control, reducing the risk of data loss or secret exposure.\n\n3. **State usage**  \n   - Terraform uses the state file to map real\u2011world resources to your configuration, track metadata, and improve performance for large infrastructures.  \n   - Before any operation, Terraform refreshes the state to reflect the current real infrastructure.\n\n4. **Avoid unsafe storage**  \n   - Do not keep the state file in a version control system or any storage that lacks Terraform state locking and secure access control, as this can lead to data loss or secret exposure.\n\n5. **Editing state**  \n   - The state file is a JSON text file. Do not edit it directly.  \n   - Use the `terraform state` command to perform safe modifications via the CLI.\n\nBy using a remote backend (e.g., HCP Terraform) and following these practices, you can securely store, manage, and collaborate on your infrastructure state.",
-    "source": [
-      "terraform_state.txt",
-      "terraform_state.txt",
-      "terraform_state.txt"
-    ],
-    "top_score": 0.515147
-  },
-  {
-    "question": "What's the cheapest way to keep rarely-used files in AWS?",
-    "answer": "The cheapest way to keep rarely\u2011used files in AWS is to store them in Amazon S3\u2019s archive access tiers (the opt\u2011in archive tiers of S3 Intelligent\u2011Tiering). These tiers are designed for asynchronous access to data that is rarely accessed, providing the lowest storage cost for such files.",
-    "source": [
-      "aws_s3.txt",
-      "aws_s3.txt",
-      "aws_s3.txt"
-    ],
-    "top_score": 0.4901549
-  },
-  {
-    "question": "Why would my Lambda function time out?",
-    "answer": "I don't have information about that in my documents.",
-    "source": [
-      "aws_lambda.txt",
-      "aws_lambda.txt",
-      "aws_lambda.txt"
-    ],
-    "top_score": 0.61283314
-  },
-  {
     "question": "Why does streaming feel faster even if it isn't?",
     "answer": "Streaming feels faster because you start seeing the output as soon as the first pieces are produced, rather than waiting for the entire result to finish. By yielding data token\u2011by\u2011token, the server sends each chunk over the network immediately, so the user sees something appear on the screen right away. This immediate feedback makes the process feel quicker, even though the total time to generate the whole response hasn\u2019t changed.",
     "source": [
@@ -88,15 +8,5 @@
       "my_personal_notes.txt"
     ],
     "top_score": 0.41200608
-  },
-  {
-    "question": "What should I be careful about?",
-    "answer": "I don't have information about that in my documents.",
-    "source": [
-      "terraform_state.txt",
-      "aws_s3.txt",
-      "aws_s3.txt"
-    ],
-    "top_score": 0.12541413
   }
 ]

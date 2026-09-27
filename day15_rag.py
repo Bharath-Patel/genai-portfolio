@@ -3,7 +3,7 @@ from qdrant_client import QdrantClient
 import os
 from dotenv import load_dotenv
 from groq import Groq
-import boto3
+import boto3,json
 
 load_dotenv()
 
@@ -42,7 +42,6 @@ def retrieve(question: str, wide_k: int = 10, final_k: int=3):
     scored.sort(key=lambda x:x[1],reverse=True)
   
     top_candidates = [ c for c, scores in scored[:final_k]]
-
     return top_candidates,qdrant_top_score
 
 def build_prompt(question:str, retrieved_chunks) -> str:
@@ -69,7 +68,8 @@ def answer_question(question:str,provider: str = "groq", similarity_thrshold: fl
     prompt = build_prompt(question,retrieved_chunks)
 
     if provider == "bedrock":
-        answer = generate_with_bedrock(prompt)
+        context_text = "\n\n".join(r.payload["text"] for r in retrieved_chunks) #Bedrock's grounding check specifically requires the context and the query to arrive as two separate, individually-tagged pieces — not merged into one block of text
+        answer = generate_with_bedrock(question,context_text)
     else:
         answer = generate_with_groq(prompt)
     #print("top 3 retrievals with respective similarity scores")
@@ -77,16 +77,50 @@ def answer_question(question:str,provider: str = "groq", similarity_thrshold: fl
     #     print(f"- {r.payload['source']} (score {r.score:.3f})")
     return answer,retrieved_chunks   
 
-def generate_with_bedrock(prompt: str) -> str:
+def generate_with_bedrock(question: str, context: str) -> str:
     response = bedrock.converse(
-        modelId = "amazon.nova-micro-v1:0",
-        messages =[{
-            'role': 'user',
-            'content': [{'text': prompt}]
-       }],
-        system = [{'text': "You are a helpful assistant answering questions based strictly on provided context."}],
-        inferenceConfig={"temperature": 0}
+        modelId="amazon.nova-micro-v1:0",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "guardContent": {
+                            "text": {
+                                "text": context,
+                                "qualifiers": ["grounding_source"]
+                            }
+                        }
+                    },
+                    {
+                        "guardContent": {
+                            "text": {
+                                "text": question,
+                                "qualifiers": ["query"] #qualifiers is mentioned,only grounding check reads it → word/content/PII filters skip it entirely.
+                            }
+                        }
+                    },
+                    {"guardContent": {"text": {"text": question}}} #no qualifiers key at all → word/content/PII filters now see it.
+                ]
+            }
+        ],
+        system=[{"text": (
+                "You are a RAG assistant. Answer using ONLY the exact information in the "
+                "provided context — do not add explanations, steps, or details from your "
+                "own general knowledge, even if you know them. If the context doesn't "
+                "fully answer the question, say only what the context actually states."
+            )}],
+        inferenceConfig={"temperature": 0},
+        guardrailConfig={
+            "guardrailIdentifier": os.getenv("BEDROCK_GUARDRAIL_ID"),
+            "guardrailVersion": os.getenv("BEDROCK_GUARDRAIL_VERSION", "DRAFT"),
+            "trace": "enabled"
+        }
     )
+    #print(json.dumps(response.get("trace", {}), indent=2, default=str))
+    if response.get("stopReason") == "guardrail_intervened":
+        #print(json.dumps(response.get("trace", {}), indent=2, default=str))
+        return "This request was blocked by a content safety guardrail."
 
     return response["output"]["message"]["content"][0]["text"]
 
@@ -102,12 +136,12 @@ def generate_with_groq(prompt: str) -> str:
     return response.choices[0].message.content
 
 if __name__ == "__main__":
-    question = "How do I control who can access my S3 bucket?"
+    question = "How the hell do I control who can access my S3 bucket?"
     print("=== Groq ===")
-    answer = answer_question(question, provider="groq")
+    answer,sources = answer_question(question, provider="groq")
     print("=== Answer ===")
     print(answer)
     print("=== Bedrock ===")
-    answer = answer_question(question, provider="bedrock")
+    answer,sources = answer_question(question, provider="bedrock")
     print("=== Answer ===")
     print(answer)

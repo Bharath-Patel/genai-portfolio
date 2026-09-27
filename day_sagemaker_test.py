@@ -11,7 +11,7 @@ test_sentences = [
 
 for sentence in test_sentences:
     response = runtime.invoke_endpoint(
-        EndpointName="genai-embedding-endpoint",
+        EndpointName="minilm-finetuned-endpoint-v2",
         ContentType="application/json",
         Body=json.dumps({"inputs": sentence}),
     )
